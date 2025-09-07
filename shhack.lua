@@ -1,21 +1,13 @@
---[[
-    sh-hack ESP Menu
-    by shadexqz
-]]
-
--- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
--- ESP Settings
 local ESPSettings = {
     Enabled = false,
     TeamCheck = true
 }
 
--- GUI
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "shhack_GUI"
 ScreenGui.Parent = game:GetService("CoreGui")
@@ -30,12 +22,10 @@ MenuFrame.Draggable = true
 MenuFrame.Visible = true
 MenuFrame.Parent = ScreenGui
 
--- Rounded corners
 local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0, 8)
 UICorner.Parent = MenuFrame
 
--- Tabs bar
 local TabsBar = Instance.new("Frame")
 TabsBar.Size = UDim2.new(1, 0, 0, 30)
 TabsBar.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
@@ -55,11 +45,9 @@ local function createTabButton(name, xPos)
     return btn
 end
 
--- Tab buttons
 local MainTabBtn = createTabButton("Main", 10)
 local VisualsTabBtn = createTabButton("Visuals", 120)
 
--- Content frames
 local MainContent = Instance.new("Frame")
 MainContent.Size = UDim2.new(1, -20, 1, -40)
 MainContent.Position = UDim2.new(0, 10, 0, 40)
@@ -74,17 +62,15 @@ VisualsContent.BackgroundTransparency = 1
 VisualsContent.Visible = false
 VisualsContent.Parent = MenuFrame
 
--- Main tab content
 local MainLabel = Instance.new("TextLabel")
 MainLabel.Size = UDim2.new(1, 0, 0, 30)
 MainLabel.BackgroundTransparency = 1
-MainLabel.Text = "in dev :)"
+MainLabel.Text = "sh-hack"
 MainLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
 MainLabel.Font = Enum.Font.Code
 MainLabel.TextSize = 18
 MainLabel.Parent = MainContent
 
--- Visuals tab content
 local ESPButton = Instance.new("TextButton")
 ESPButton.Size = UDim2.new(1, -20, 0, 40)
 ESPButton.Position = UDim2.new(0, 10, 0, 10)
@@ -117,7 +103,6 @@ TeamCheckButton.MouseButton1Click:Connect(function()
     TeamCheckButton.BackgroundColor3 = ESPSettings.TeamCheck and Color3.fromRGB(60, 100, 160) or Color3.fromRGB(40, 40, 55)
 end)
 
--- Tab switching
 MainTabBtn.MouseButton1Click:Connect(function()
     MainContent.Visible = true
     VisualsContent.Visible = false
@@ -128,26 +113,23 @@ VisualsTabBtn.MouseButton1Click:Connect(function()
     VisualsContent.Visible = true
 end)
 
--- Insert key toggle
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if input.KeyCode == Enum.KeyCode.Insert and not gameProcessed then
         MenuFrame.Visible = not MenuFrame.Visible
     end
 end)
 
--- ESP Logic
 local highlights = {}
 
 local function createHighlight(player)
     if player == LocalPlayer then return end
     if highlights[player] then return end
-
     local highlight = Instance.new("Highlight")
-    highlight.FillTransparency = 1
+    highlight.FillTransparency = 0.7
+    highlight.FillColor = Color3.fromRGB(255, 0, 0)
     highlight.OutlineTransparency = 0
-    highlight.OutlineColor = Color3.fromRGB(255, 0, 0) -- default red
+    highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
     highlight.Parent = player.Character or player.CharacterAdded:Wait()
-
     highlights[player] = highlight
 end
 
@@ -158,7 +140,6 @@ local function removeHighlight(player)
     end
 end
 
--- Update ESP
 RunService.RenderStepped:Connect(function()
     if not ESPSettings.Enabled then
         for _, hl in pairs(highlights) do
@@ -166,7 +147,6 @@ RunService.RenderStepped:Connect(function()
         end
         return
     end
-
     for _, player in pairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
             createHighlight(player)
@@ -174,20 +154,20 @@ RunService.RenderStepped:Connect(function()
             if highlight then
                 highlight.Parent = player.Character
                 highlight.Enabled = true
-
                 if ESPSettings.TeamCheck and player.Team == LocalPlayer.Team then
-                    highlight.OutlineColor = Color3.fromRGB(0, 0, 255) -- blue for team
+                    highlight.FillColor = Color3.fromRGB(0, 0, 255)
+                    highlight.OutlineColor = Color3.fromRGB(0, 0, 255)
                 else
-                    highlight.OutlineColor = Color3.fromRGB(255, 0, 0) -- red for enemies
+                    highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                    highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
                 end
             end
         end
     end
 end)
 
--- Player cleanup
 Players.PlayerRemoving:Connect(function(player)
     removeHighlight(player)
 end)
 
-print("sh-hack menu + ESP loaded!")
+print("sh-hack loaded")
