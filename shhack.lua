@@ -1,6 +1,6 @@
 --[[
     sh-hack ESP Menu
-    developed by shadexqz
+    by shadexqz
 ]]
 
 -- Services
@@ -135,4 +135,59 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
-print("sh-hack menu loaded!")
+-- ESP Logic
+local highlights = {}
+
+local function createHighlight(player)
+    if player == LocalPlayer then return end
+    if highlights[player] then return end
+
+    local highlight = Instance.new("Highlight")
+    highlight.FillTransparency = 1
+    highlight.OutlineTransparency = 0
+    highlight.OutlineColor = Color3.fromRGB(255, 0, 0) -- default red
+    highlight.Parent = player.Character or player.CharacterAdded:Wait()
+
+    highlights[player] = highlight
+end
+
+local function removeHighlight(player)
+    if highlights[player] then
+        highlights[player]:Destroy()
+        highlights[player] = nil
+    end
+end
+
+-- Update ESP
+RunService.RenderStepped:Connect(function()
+    if not ESPSettings.Enabled then
+        for _, hl in pairs(highlights) do
+            hl.Enabled = false
+        end
+        return
+    end
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            createHighlight(player)
+            local highlight = highlights[player]
+            if highlight then
+                highlight.Parent = player.Character
+                highlight.Enabled = true
+
+                if ESPSettings.TeamCheck and player.Team == LocalPlayer.Team then
+                    highlight.OutlineColor = Color3.fromRGB(0, 0, 255) -- blue for team
+                else
+                    highlight.OutlineColor = Color3.fromRGB(255, 0, 0) -- red for enemies
+                end
+            end
+        end
+    end
+end)
+
+-- Player cleanup
+Players.PlayerRemoving:Connect(function(player)
+    removeHighlight(player)
+end)
+
+print("sh-hack menu + ESP loaded!")
