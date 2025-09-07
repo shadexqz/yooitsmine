@@ -1,5 +1,5 @@
 --[[
-    ShadexQZ Hack - ESP Lua Script
+    sh-hack ESP Script
     Только учебный пример
 ]]
 
@@ -20,23 +20,23 @@ local ESPSettings = {
 
 -- GUI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ShadexQZ_GUI"
+ScreenGui.Name = "sh-hack_GUI"
 ScreenGui.Parent = game:GetService("CoreGui")
 
 -- Меню
 local MenuFrame = Instance.new("Frame")
 MenuFrame.Size = UDim2.new(0, 220, 0, 150)
-MenuFrame.Position = UDim2.new(0, 50, 0, -200) -- начальная позиция (анимация)
+MenuFrame.Position = UDim2.new(0, 50, 0, -200)
 MenuFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 MenuFrame.BorderSizePixel = 0
 MenuFrame.Parent = ScreenGui
 
--- Название
+-- Заголовок
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 30)
 Title.Position = UDim2.new(0, 0, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "ShadexQZ Hack"
+Title.Text = "sh-hack"
 Title.TextColor3 = Color3.fromRGB(0, 255, 255)
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 20
@@ -58,10 +58,10 @@ ESPButton.MouseButton1Click:Connect(function()
     ESPButton.Text = ESPSettings.Enabled and "ESP: ON" or "ESP: OFF"
 end)
 
--- Анимация открытия/закрытия
+-- Анимация открытия/закрытия INS
 local MenuOpen = false
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
     if input.KeyCode == Enum.KeyCode.Insert then
         MenuOpen = not MenuOpen
         if MenuOpen then
@@ -72,7 +72,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
--- ESP Box с обводкой
+-- ESP Box
 local function CreateESPBox(player)
     local box = Instance.new("Frame")
     box.Name = player.Name .. "_ESP"
@@ -101,21 +101,25 @@ RunService.RenderStepped:Connect(function()
                 if ESPBoxes[player] then
                     ESPBoxes[player].Visible = false
                 end
-                continue
-            end
-
-            if not ESPBoxes[player] then
-                ESPBoxes[player] = CreateESPBox(player)
-            end
-
-            local character = player.Character
-            if character and character:FindFirstChild("HumanoidRootPart") then
-                local rootPos = Camera:WorldToViewportPoint(character.HumanoidRootPart.Position)
-                ESPBoxes[player].Position = UDim2.new(0, rootPos.X, 0, rootPos.Y)
-                ESPBoxes[player].Size = UDim2.new(0, 60, 0, 120)
-                ESPBoxes[player].Visible = true
             else
-                ESPBoxes[player].Visible = false
+                if not ESPBoxes[player] then
+                    ESPBoxes[player] = CreateESPBox(player)
+                end
+
+                local char = player.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    local pos, vis = Camera:WorldToViewportPoint(hrp.Position)
+                    if vis then
+                        ESPBoxes[player].Position = UDim2.new(0, pos.X, 0, pos.Y)
+                        ESPBoxes[player].Size = UDim2.new(0, 60, 0, 120)
+                        ESPBoxes[player].Visible = true
+                    else
+                        ESPBoxes[player].Visible = false
+                    end
+                else
+                    ESPBoxes[player].Visible = false
+                end
             end
         end
     end
